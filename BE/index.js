@@ -15,7 +15,10 @@ app.use(express.json())
 const urlMap = {}
 
 const urlSchema = z.object({
-    url: z.url({error: "Invalid URL format send correct url"})
+    url: z.url({error: "Invalid URL format send correct url"}),
+    customCode: z.string().regex(/^[a-zA-Z0-9_-]{3,20}$/, {
+      message: "Custom code must be 3-20 characters, letters/numbers/-/_ only.",
+    }).optional(),
 })
 
 app.get("/",(req,res)=>{
@@ -34,9 +37,13 @@ app.post("/shorten",(req,res)=>{
         })
     }
 
-    const {url} = validation.data
+    const {url, customCode} = validation.data
 
-    let code = nanoid(6);
+    let code = customCode || nanoid(6);
+
+    if(urlMap[code]){
+        return res.status(409).json({ error: "Short code already in use." });
+    }
 
     urlMap[code] = url
 
