@@ -47,7 +47,7 @@ app.post("/shorten",(req,res)=>{
 
     urlMap[code] = url
 
-    return res.json({
+    return res.status(201).json({
         shorten_url: `http://localhost:3000/s/${code}`,
         url: url
     })
