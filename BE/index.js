@@ -30,7 +30,7 @@ app.post("/shorten",(req,res)=>{
     if(!validation.success){
         return res.status(400).json({
             error: "zod throw error",
-            zoderror: validation
+            zoderror: z.prettifyError(validation.error)
         })
     }
 
@@ -41,7 +41,8 @@ app.post("/shorten",(req,res)=>{
     urlMap[code] = url
 
     return res.json({
-        shorten_url: `http://localhost:3000/s/${code}`
+        shorten_url: `http://localhost:3000/s/${code}`,
+        url: url
     })
 })
 
@@ -50,8 +51,8 @@ app.get("/s/:code",(req,res)=>{
     const originalUrl = urlMap[code]
 
     if(!originalUrl){
-        return res.json({
-            error: "route not found by :code function"
+        return res.status(404).json({
+            error: "Shorten URL not found"
         })
     }
 
