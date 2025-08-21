@@ -76,7 +76,7 @@ app.post("/shorten",async (req,res)=>{
 
 app.get("/s/:code",async (req,res)=>{
     const code = req.params.code;
-    const {data,error} = await supabase.from("urlshortener").select("url").eq("id",code).single();
+    const {data,error} = await supabase.from("urlshortener").select("url,clicks").eq("id",code).single();
     console.log(data);
     
 
@@ -86,6 +86,7 @@ app.get("/s/:code",async (req,res)=>{
         })
     }
 
+    const {update_click_error} = await supabase.from("urlshortener").update({clicks:data.clicks +1}).eq("id",code)
     return res.redirect(data.url)
 });
 
