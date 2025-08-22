@@ -79,7 +79,7 @@ const Hero = () => {
             <div className="text-4xl md:text-6xl font-bold mb-4 gradient-text">Shorten URLs with Style</div>
             <div className="text-xl max-w-2xl mx-auto text-[#a1a1a1] text-center">Transform long URLs into sleek, shareable links with our futuristic URL shortener. Generate QR codes instantly and track your links with ease.</div>
         </div>
-        <div className={`flex flex-row ${customCode ? 'justify-between' : 'justify-center'} px-10 mt-15 gap-15`}>
+        <div className={`flex flex-row ${shortenURL ? 'justify-between' : 'justify-center'} px-10 mt-15 gap-15`}>
             <div className="w-full max-w-xl">
                 <div className="border-1 border-[#f9e86663] rounded-lg px-10 flex flex-col gap-6 py-10">
                     <div className="flex flex-row items-center gap-4">

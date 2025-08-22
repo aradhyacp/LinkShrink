@@ -17,7 +17,7 @@ const Header = () => {
           </div>
           <div className="text-xl font-bold">LinkShrink</div>
         </div>
-        <div className="">change theme</div>
+        {/* <div className="">change theme</div> */}
       </div>
     </header>
   );
