@@ -10,7 +10,7 @@ const Footer = () => {
         </div>
         <div className="flex flex-row gap-17">
             {footerLinks.map((link)=>(
-                <a href={link.link} className='text-sm hover:text-white'>{link.text}</a>
+                <a href={link.link} key={link.text}className='text-sm hover:text-white'>{link.text}</a>
             ))}
         </div>
     </div>

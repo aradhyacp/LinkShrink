@@ -1,22 +1,33 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import QRCode from "react-qr-code";
+import Toastify from "toastify-js"
+import "toastify-js/src/toastify.css"
+import Swal from 'sweetalert2'
 
 const Hero = () => {
     const [customCode,setCustomCode] = useState("");
     const [requireCustomCode, setRequireCustomCode] = useState(false)
     const [originalURL, setOriginalURL] = useState("")
     const [shortenURL, setShortenURL] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const shortenURLRef = useRef(null)
 
     const handleClick = async () =>{
         if(!originalURL){
         console.error("Original URL is required.");
+        Swal.fire({
+            icon: "error",
+            title: "Original URL is required.",
+            footer: 'Give a valid url to continue.'
+        });
         return;
         }
 
         try {
 
             let response
+            setIsLoading((prev)=>!prev)
             if(customCode){
                 response = await axios.post("http://localhost:3000/shorten",{
                     url: originalURL,
@@ -26,13 +37,39 @@ const Hero = () => {
                 response = await axios.post("http://localhost:3000/shorten",{
                     url: originalURL
                 });
+                
                 }
-
+                setIsLoading((prev)=>!prev)
                 setShortenURL(response.data.shorten_url)
+                displayToast("URL Shortened !!!",5000)
             
         } catch (error) {
-            console.error("Error creating short URL:", error);
+            console.error("Error creating short URL:", error.response.data.error);
+            Swal.fire({
+            icon: "error",
+            title: "Error creating short URL:",
+            text: error.response.data.error,
+            footer: 'Contact site Admin to resolve'
+        });
+        setIsLoading((prev)=>!prev)
         }
+    }
+
+    const handleCopy = () =>{
+        window.navigator.clipboard.writeText(shortenURL)
+        shortenURLRef.current.select()
+        displayToast("Copied to clipboard !!!",3000,"linear-gradient(to right, rgb(0, 176, 155), rgb(150, 201, 61))")
+
+    }
+
+    const displayToast = (text,duration,bg)=>{
+        Toastify({
+            text: text,
+            duration: duration,
+            style: {
+                background: bg
+            }
+        }).showToast()
     }
 
 
@@ -40,7 +77,7 @@ const Hero = () => {
     <div className="flex flex-col flex-grow h-[95%]">
         <div className="flex flex-col h-fit items-center mx-auto mt-5">
             <div className="text-4xl md:text-6xl font-bold mb-4 gradient-text">Shorten URLs with Style</div>
-            <div className="text-xl max-w-2xl mx-auto text-[#a1a1a1]">Transform long URLs into sleek, shareable links with our futuristic URL shortener. Generate QR codes instantly and track your links with ease.</div>
+            <div className="text-xl max-w-2xl mx-auto text-[#a1a1a1] text-center">Transform long URLs into sleek, shareable links with our futuristic URL shortener. Generate QR codes instantly and track your links with ease.</div>
         </div>
         <div className={`flex flex-row ${customCode ? 'justify-between' : 'justify-center'} px-10 mt-15 gap-15`}>
             <div className="w-full max-w-xl">
@@ -56,7 +93,7 @@ const Hero = () => {
                     {requireCustomCode && <input type="text" className='border border-[#f9e86663] rounded-md w-full px-3 py-3 focus:border-[#f9e866] focus:border-2 focus:outline-none'  placeholder='Enter your custom short code...' value={customCode} onChange={(e)=>setCustomCode(e.target.value)}/>}
                     <button className='bg-[#f9e866] px-4 py-6 rounded-md flex flex-row items-center text-black gap-4 justify-center cursor-pointer hover:bg-[#f9e866de]' onClick={handleClick}>
                         <div className="size-4 text-black"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link-icon lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-                        <span className='font-bold'>Shorten URL</span>
+                        {isLoading?<span className='font-bold'>Shortening...</span>:<span className='font-bold'>Shorten URL</span>}
                     </button>
                 </div>
             </div>
@@ -66,8 +103,8 @@ const Hero = () => {
                         <div className="text-2xl font-bold">Your Shortened URL</div>
                     </div>
                     <div className="border-1 border-[#9cf9668d] px-4 py-2 rounded-md flex flex-row items-center">
-                        <input type="text" className='w-full py-5 border-none focus:outline-none text-xl' readOnly value={shortenURL}/>
-                        <div className="cursor-pointer w-[10%] h-full mx-auto hover:text-[#7aff2dd0]"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div>
+                        <input type="text" className='w-full py-5 border-none focus:outline-none text-xl' ref={shortenURLRef} readOnly value={shortenURL}/>
+                        <button className="cursor-pointer w-[10%] h-full hover:text-[#7aff2dd0] px-5 py-5" onClick={handleCopy}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
                     </div>
                     <div className="mx-auto mt-5 bg-white p-5">
                         <div className="">
