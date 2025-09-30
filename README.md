@@ -18,7 +18,8 @@ A modern full-stack URL shortener built with **React**, **Express**, and **Supab
 ---
 
 ## 🌐 Live Demo 
-> _To be added once deployed_
+![Demo](/link_shrink.gif)
+
 
 ---
 
